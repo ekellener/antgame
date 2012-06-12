@@ -1,38 +1,40 @@
+--
+-- Created by IntelliJ IDEA.
+-- User: erik
+-- Date: 5/7/12
+-- Time: 5:02 PM
+-- To change this template use File | Settings | File Templates.
+--
+
 require 'middleclass'
 local sprite = require( "sprite" )
 Vector2D = require("Vector2D")
 
-
-Boid = {}
-local BOID_SIZE = 4
-
-function Boid:new(location, ms, mf, si)
+BoidBase = class('BoidBase')
+function BoidBase:initialize(location, ms, mf, displayobject, bsize)
     local object = {
         maxSpeed = ms,
         maxForce = mf,
         loc = location,
         vel = Vector2D:new(0,0),
         acc = Vector2D:new(0,0),
-        wanderTheta = 0.0,
---        displayObject = display.newCircle( display.contentWidth / 2, display.contentHeight/2, BOID_SIZE ),
---     displayObject is passed to the constructor to give more abstraction.
+        displayObject = displayobject,
+        boidsize = bsize,
+        wanderTheta = 0.0
 
-       displayObject = si,
     }
 
---    object.displayObject:setFillColor(0,255,0)
-
-    setmetatable(object, { __index = Boid })
-    return object
+  --  setmetatable(object, { __index = BoidBase })
+  --  return object
 end
 
-function Boid:run(event)
+function BoidBase:run(event)
     self:update()
     self:borders()
     self:render()
 end
 
-function Boid:update()
+function BoidBase:update()
     -- Update velocity
     self.vel:add(self.acc)
     -- Limit speed
@@ -43,20 +45,20 @@ function Boid:update()
     self.acc:mult(0)
 end
 
-function Boid:render()
+function BoidBase:render()
     self.displayObject.x = self.loc.x
     self.displayObject.y = self.loc.y
 end
 
-function Boid:seek(target)
+function BoidBase:seek(target)
     self.acc = self:steer(target, false)
 end
 
-function Boid:arrive(target)
+function BoidBase:arrive(target)
     self.acc = self:steer(target, true)
 end
 
-function Boid:steer(target, slowdown)
+function BoidBase:steer(target, slowdown)
     local steer
     local desired = Vector2D:Sub(target, self.loc)
     local d = desired:magnitude()
@@ -80,9 +82,10 @@ function Boid:steer(target, slowdown)
     return steer
 end
 
-function Boid:borders()
-    if self.loc.x + BOID_SIZE >= display.contentWidth - 5 then
+function BoidBase:borders()
+    if self.loc.x + self.boidsize >= display.contentWidth - 5 then
         self.wanderTheta = math.pi
+
         self.loc.x = self.loc.x - 1
     end
     if self.loc.x <= 5 then
@@ -95,13 +98,14 @@ function Boid:borders()
         self.loc.y = self.loc.y + 1
     end
 
-    if self.loc.y + BOID_SIZE >= display.contentHeight - 5 then
-        self.wanderTheta = (3 * math.pi) / 2
+    if self.loc.y + self.boidsize >= display.contentHeight - 5 then
         self.loc.y = self.loc.y - 1
+        self.wanderTheta = (3 * math.pi) / 2
     end
 end
 
-function Boid:wander()
+
+function BoidBase:wander()
     local wanderR = 16.0
     local wanderD = 60.0
     local change  = 0.5
@@ -127,4 +131,4 @@ function Boid:wander()
     self.acc:add(self:steer(target))
 end
 
-return Boid
+--return BoidBase

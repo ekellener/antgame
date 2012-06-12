@@ -1,26 +1,31 @@
-require 'middleclass'
+--
+-- Created by IntelliJ IDEA.
+-- User: erik
+-- Date: 5/7/12
+-- Time: 5:02 PM
+-- To change this template use File | Settings | File Templates.
+--
+
 local sprite = require( "sprite" )
+
+BoidWander = {}
+
 Vector2D = require("Vector2D")
 
-
-Boid = {}
-local BOID_SIZE = 4
-
-function Boid:new(location, ms, mf, si)
+function BoidWander:new(location, ms, mf, si, bsize, wt, wr, wd, ch)
     local object = {
         maxSpeed = ms,
         maxForce = mf,
         loc = location,
         vel = Vector2D:new(0,0),
         acc = Vector2D:new(0,0),
-        wanderTheta = 0.0,
---        displayObject = display.newCircle( display.contentWidth / 2, display.contentHeight/2, BOID_SIZE ),
---     displayObject is passed to the constructor to give more abstraction.
-
-       displayObject = si,
+              displayObject = si,
+        BOID_SIZE = bsize or 4,
+        wanderTheta = wt or 0.0,
+        wanderR = wr or 16.0,
+        wanderD= wd or 60.0,
+        change  = ch or 0.5
     }
-
---    object.displayObject:setFillColor(0,255,0)
 
     setmetatable(object, { __index = Boid })
     return object
@@ -81,37 +86,35 @@ function Boid:steer(target, slowdown)
 end
 
 function Boid:borders()
-    if self.loc.x + BOID_SIZE >= display.contentWidth - 5 then
-        self.wanderTheta = math.pi
+    if self.loc.x + self.BOID_SIZE >= display.contentWidth - 5 then
+        self.self.wanderTheta = math.pi
         self.loc.x = self.loc.x - 1
     end
     if self.loc.x <= 5 then
-        self.wanderTheta = 0
+        self.self.wanderTheta = 0
         self.loc.x = self.loc.x + 1
     end
 
     if self.loc.y <= 5 then
-        self.wanderTheta = math.pi/2
+        self.self.wanderTheta = math.pi/2
         self.loc.y = self.loc.y + 1
     end
 
-    if self.loc.y + BOID_SIZE >= display.contentHeight - 5 then
-        self.wanderTheta = (3 * math.pi) / 2
+    if self.loc.y + self.BOID_SIZE >= display.contentHeight - 5 then
+        self.self.wanderTheta = (3 * math.pi) / 2
         self.loc.y = self.loc.y - 1
     end
 end
 
 function Boid:wander()
-    local wanderR = 16.0
-    local wanderD = 60.0
-    local change  = 0.5
+
 
     local negChange = math.random(2)
-    local randomNum = math.random() * change
+    local randomNum = math.random() * self.change
     if negChange == 2 then
-        self.wanderTheta = self.wanderTheta - randomNum
+        self.self.wanderTheta = self.self.wanderTheta - randomNum
     else
-        self.wanderTheta = self.wanderTheta + randomNum
+        self.self.wanderTheta = self.self.wanderTheta + randomNum
     end
 
     local circleLoc = self.vel:copy()
@@ -120,7 +123,7 @@ function Boid:wander()
     circleLoc:mult(wanderD)
     circleLoc:add(self.loc)
 
-    local circleOffset = Vector2D:new(wanderR*math.cos(self.wanderTheta), wanderR*math.sin(self.wanderTheta))
+    local circleOffset = Vector2D:new(self.wanderR*math.cos(self.self.wanderTheta), self.wanderR*math.sin(self.self.wanderTheta))
     local target = circleLoc:copy()
     target:add(circleOffset)
 

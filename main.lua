@@ -5,8 +5,9 @@
 
 local sprite = require( "sprite" )
 local physics = require( "physics" )
+require 'middleclass'
+local BoidBase = require( "BoidBase" )
 local Boid = require('Boid')
-
 
 -------------------------------------
 --Initialization
@@ -423,6 +424,7 @@ spriteInstance2:addEventListener("touch",onTouch2)
 spriteInstance:prepare("texturepacker")
 spriteInstance:play()
 --Add to accept touch
+--Add to accept touch
 spriteInstance:addEventListener("touch",onTouch)
 -- Add Collision listener
 -- spriteInstance.collision = onLocalCollision
@@ -435,14 +437,15 @@ spriteInstance3:play()
 
 -- Set up Boids
 math.randomseed( os.time() )
-
 for i=1,20 do
+
     local loc = Vector2D:new(display.contentWidth / 2,display.contentWidth / 2)
     local spriteInstanceBoid = sprite.newSprite(spriteSet)
     spriteInstanceBoid:scale(.5,.5)
     spriteInstanceBoid:prepare("texturepacker")
     spriteInstanceBoid:play()
-    local wanderer = Boid:new(loc,MAX_FORCE,MAX_SPEED,spriteInstanceBoid)
+--   local wanderer = Boid:new(loc,MAX_FORCE,MAX_SPEED,spriteInstanceBoid)
+ local wanderer = BoidBase:new(loc,MAX_FORCE,MAX_SPEED,spriteInstanceBoid,4)
     table.insert(wanderers,wanderer)
 end
 
